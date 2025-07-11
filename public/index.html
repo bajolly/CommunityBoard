@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #2d3748;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .nav-links button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-links button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-links span {
+            color: #4a5568;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .form h2 {
+            margin-bottom: 1.5rem;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            margin-right: 0.75rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+            box-shadow: 0 6px 20px rgba(160, 174, 192, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(160, 174, 192, 0.4);
+        }
+        
+        .story {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .story:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+        
+        .story h3 {
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            font-size: 1.4rem;
+            line-height: 1.4;
+        }
+        
+        .story-meta {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+            font-weight: 500;
+        }
+        
+        .story p {
+            color: #4a5568;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .comments {
+            margin-top: 2rem;
+        }
+        
+        .comments h4 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .comment {
+            background: rgba(102, 126, 234, 0.05);
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .comment:hover {
+            background: rgba(102, 126, 234, 0.08);
+            transform: translateX(5px);
+        }
+        
+        .comment-meta {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .comment p {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .alert {
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 15px;
+            font-weight: 500;
+            border: none;
+        }
+        
+        .alert-error {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(245, 101, 101, 0.3);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #68d391 0%, #48bb78 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .comment-form {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+        
+        .comment-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+        
+        .comment-form textarea::placeholder {
+            color: #a0aec0;
+        }
+        
+        .user-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+        
+        .create-story-btn {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            padding: 1.25rem 2.5rem;
+        }
+        
+        #storiesContainer h2 {
+            color: #2d3748;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Animation for story cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .story {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .form {
+                padding: 1.5rem;
+            }
+            
+            .story {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <h1>Community Board</h1>
+                <div class="nav-links">
+                    <span id="userInfo" class="hidden"></span>
+                    <button id="adminPanelBtn" class="hidden">Admin Panel</button>
+                    <button id="loginBtn">Login</button>
+                    <button id="signupBtn">Sign Up</button>
+                    <button id="logoutBtn" class="hidden">Logout</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="authForms" class="hidden">
+            <form id="signupForm" class="form">
+                <h2>Sign Up</h2>
+                <div class="form-group">
+                    <label for="fullname">Full Name *</label>
+                    <input type="text" id="fullname" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="address">Address *</label>
+                    <textarea id="address" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone (Optional)</label>
+                    <input type="tel" id="phone">
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+                <button type="button" class="btn btn-secondary" onclick="hideAuthForms()">Cancel</button>
+            </form>
+
+            <form id="loginForm" class="form hidden">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <button type="button" class="btn btn-secondary" onclick="hideAuthForms()">Cancel</button>
+            </form>
+        </div>
+
+        <div id="storyForm" class="form hidden">
+            <h2>Create New Story</h2>
+            <div class="form-group">
+                <label for="storyTitle">Title</label>
+                <input type="text" id="storyTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="storyContent">Content</label>
+                <textarea id="storyContent" required rows="6"></textarea>
+            </div>
+            <button type="button" class="btn" onclick="createStory()">Post Story</button>
+            <button type="button" class="btn btn-secondary" onclick="hideStoryForm()">Cancel</button>
+        </div>
+
+        <div id="storiesContainer">
+            <h2>Stories</h2>
+            <div id="storiesList"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let stories = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadStories();
+            
+            document.getElementById('loginBtn').addEventListener('click', showLoginForm);
+            document.getElementById('signupBtn').addEventListener('click', showSignupForm);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            document.getElementById('signupForm').addEventListener('submit', handleSignup);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        });
+
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                currentUser = JSON.parse(user);
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            const userInfo = document.getElementById('userInfo');
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminPanelBtn = document.getElementById('adminPanelBtn');
+            const storyForm = document.getElementById('storyForm');
+
+            if (currentUser) {
+                userInfo.textContent = `Welcome, ${currentUser.fullname} (${currentUser.role})`;
+                userInfo.classList.remove('hidden');
+                loginBtn.classList.add('hidden');
+                signupBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                
+                if (currentUser.role === 'admin') {
+                    adminPanelBtn.classList.remove('hidden');
+                    adminPanelBtn.onclick = () => window.open('/admin.html', '_blank');
+                }
+                
+                if (currentUser.role === 'editor' || currentUser.role === 'admin') {
+                    const createBtn = document.createElement('button');
+                    createBtn.className = 'btn';
+                    createBtn.textContent = 'Create Story';
+                    createBtn.onclick = showStoryForm;
+                    
+                    if (!document.querySelector('.create-story-btn')) {
+                        createBtn.className += ' create-story-btn';
+                        document.getElementById('storiesContainer').insertBefore(createBtn, document.getElementById('storiesList'));
+                    }
+                }
+            } else {
+                userInfo.classList.add('hidden');
+                adminPanelBtn.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+                signupBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                storyForm.classList.add('hidden');
+            }
+        }
+
+        function showSignupForm() {
+            document.getElementById('authForms').classList.remove('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('authForms').classList.remove('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+        }
+
+        function hideAuthForms() {
+            document.getElementById('authForms').classList.add('hidden');
+        }
+
+        function showStoryForm() {
+            document.getElementById('storyForm').classList.remove('hidden');
+        }
+
+        function hideStoryForm() {
+            document.getElementById('storyForm').classList.add('hidden');
+            document.getElementById('storyTitle').value = '';
+            document.getElementById('storyContent').value = '';
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            
+            const formData = {
+                fullname: document.getElementById('fullname').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Registration successful! Please wait for admin approval.', 'success');
+                    hideAuthForms();
+                    document.getElementById('signupForm').reset();
+                } else {
+                    showAlert(data.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error during registration', 'error');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const formData = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    currentUser = data.user;
+                    updateUI();
+                    hideAuthForms();
+                    document.getElementById('loginForm').reset();
+                    showAlert('Login successful!', 'success');
+                } else {
+                    showAlert(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error during login', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            currentUser = null;
+            updateUI();
+            location.reload();
+        }
+
+        async function loadStories() {
+            try {
+                const response = await fetch('/api/stories');
+                if (response.ok) {
+                    stories = await response.json();
+                    displayStories();
+                }
+            } catch (error) {
+                console.error('Error loading stories:', error);
+            }
+        }
+
+        function displayStories() {
+            const storiesList = document.getElementById('storiesList');
+            storiesList.innerHTML = '';
+
+            stories.forEach(story => {
+                const storyDiv = document.createElement('div');
+                storyDiv.className = 'story';
+                storyDiv.innerHTML = `
+                    <h3>${story.title}</h3>
+                    <div class="story-meta">
+                        By ${story.author.fullname} on ${new Date(story.createdAt).toLocaleDateString()}
+                    </div>
+                    <p>${story.content}</p>
+                    <div class="comments">
+                        <h4>Comments (${story.comments.length})</h4>
+                        ${story.comments.map(comment => `
+                            <div class="comment">
+                                <div class="comment-meta">
+                                    ${comment.author.fullname} - ${new Date(comment.createdAt).toLocaleDateString()}
+                                </div>
+                                <p>${comment.content}</p>
+                            </div>
+                        `).join('')}
+                        ${currentUser ? `
+                            <div class="comment-form">
+                                <textarea placeholder="Add a comment..." id="comment-${story._id}"></textarea>
+                                <button class="btn" onclick="addComment('${story._id}')">Add Comment</button>
+                            </div>
+                        ` : '<p>Please login to comment.</p>'}
+                    </div>
+                `;
+                storiesList.appendChild(storyDiv);
+            });
+        }
+
+        async function createStory() {
+            const title = document.getElementById('storyTitle').value;
+            const content = document.getElementById('storyContent').value;
+
+            if (!title || !content) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/stories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ title, content })
+                });
+
+                if (response.ok) {
+                    hideStoryForm();
+                    loadStories();
+                    showAlert('Story created successfully!', 'success');
+                } else {
+                    const data = await response.json();
+                    showAlert(data.error || 'Failed to create story', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error creating story', 'error');
+            }
+        }
+
+        async function addComment(storyId) {
+            const content = document.getElementById(`comment-${storyId}`).value;
+
+            if (!content.trim()) {
+                showAlert('Please enter a comment', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/stories/${storyId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (response.ok) {
+                    document.getElementById(`comment-${storyId}`).value = '';
+                    loadStories();
+                } else {
+                    const data = await response.json();
+                    showAlert(data.error || 'Failed to add comment', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error adding comment', 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            document.body.insertBefore(alertDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
