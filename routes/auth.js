@@ -10,7 +10,7 @@ router.post('/signup', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('address').notEmpty().withMessage('Address is required'),
-  body('phone').optional().isLength({ min: 1 })
+  body('phone').optional({ checkFalsy: true })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -30,7 +30,7 @@ router.post('/signup', [
       email,
       password,
       address,
-      phone
+      phone: phone || undefined
     });
 
     await user.save();

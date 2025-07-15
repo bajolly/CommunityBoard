@@ -270,6 +270,26 @@
                 <h2>All Users</h2>
                 <div id="allUsers"></div>
             </div>
+
+            <div class="admin-panel">
+                <h2>Board Configuration</h2>
+                <p style="margin-bottom: 1rem;">Edit the kanban board lanes configuration below:</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Current Configuration</h3>
+                        <pre id="currentConfig" style="background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto;"></pre>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Edit Configuration</h3>
+                        <textarea id="configEditor" rows="15" style="width: 100%; font-family: monospace; padding: 1rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-success" onclick="saveConfig()">Save Configuration</button>
+                            <button class="btn" onclick="resetConfig()">Reset to Current</button>
+                        </div>
+                        <div id="configError" class="alert alert-error hidden" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -355,7 +375,8 @@
                 await Promise.all([
                     loadPendingUsers(),
                     loadAllUsers(),
-                    loadStats()
+                    loadStats(),
+                    loadBoardConfig()
                 ]);
             } catch (error) {
                 showAlert('Error loading admin data', 'error');
@@ -588,6 +609,112 @@
             setTimeout(() => {
                 alertDiv.remove();
             }, 5000);
+        }
+
+        async function loadBoardConfig() {
+            try {
+                const response = await fetch('/api/board/config', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const config = await response.json();
+                    displayBoardConfig(config);
+                }
+            } catch (error) {
+                console.error('Error loading board config:', error);
+            }
+        }
+
+        function displayBoardConfig(config) {
+            const currentConfigDiv = document.getElementById('currentConfig');
+            const configEditor = document.getElementById('configEditor');
+            
+            const configData = {
+                lanes: config.lanes || [
+                    { id: '0', title: 'To Do', order: 0 },
+                    { id: '1', title: 'In Progress', order: 1 },
+                    { id: '2', title: 'Done', order: 2 }
+                ]
+            };
+            
+            const jsonString = JSON.stringify(configData, null, 2);
+            currentConfigDiv.textContent = jsonString;
+            configEditor.value = jsonString;
+        }
+
+        function resetConfig() {
+            const currentConfig = document.getElementById('currentConfig').textContent;
+            document.getElementById('configEditor').value = currentConfig;
+            hideConfigError();
+        }
+
+        function hideConfigError() {
+            const errorDiv = document.getElementById('configError');
+            errorDiv.classList.add('hidden');
+            errorDiv.textContent = '';
+        }
+
+        function showConfigError(message) {
+            const errorDiv = document.getElementById('configError');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        async function saveConfig() {
+            hideConfigError();
+            
+            const configEditor = document.getElementById('configEditor');
+            const newConfigString = configEditor.value;
+            
+            let newConfig;
+            try {
+                newConfig = JSON.parse(newConfigString);
+            } catch (error) {
+                showConfigError('Invalid JSON format. Please check your syntax.');
+                return;
+            }
+            
+            if (!newConfig.lanes || !Array.isArray(newConfig.lanes)) {
+                showConfigError('Configuration must have a "lanes" array.');
+                return;
+            }
+            
+            if (newConfig.lanes.length === 0) {
+                showConfigError('Configuration must have at least one lane.');
+                return;
+            }
+            
+            for (let i = 0; i < newConfig.lanes.length; i++) {
+                const lane = newConfig.lanes[i];
+                if (!lane.id || !lane.title || typeof lane.order !== 'number') {
+                    showConfigError(`Lane ${i + 1} must have id, title, and order fields.`);
+                    return;
+                }
+            }
+            
+            try {
+                const response = await fetch('/api/board/config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(newConfig)
+                });
+
+                if (response.ok) {
+                    showAlert('Board configuration updated successfully!', 'success');
+                    loadBoardConfig();
+                } else {
+                    const data = await response.json();
+                    showAlert(data.error || 'Failed to update configuration', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error updating configuration', 'error');
+            }
         }
     </script>
 </body>
