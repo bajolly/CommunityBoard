@@ -166,28 +166,99 @@
             box-shadow: 0 8px 25px rgba(160, 174, 192, 0.4);
         }
         
+        .kanban-board {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: scroll; /* Changed from auto to scroll to always show scrollbar */
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            min-height: 500px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.5) rgba(255, 255, 255, 0.1);
+        }
+        
+        .kanban-board::-webkit-scrollbar {
+            height: 12px; /* Slightly larger for better visibility */
+        }
+        
+        .kanban-board::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2); /* More visible track */
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .kanban-board::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.7); /* More opaque for visibility */
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .kanban-board::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.9);
+        }
+        
+        .kanban-lane {
+            flex: 0 0 300px;
+            min-width: 300px;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+        
+        .lane-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .lane-content {
+            min-height: 400px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .lane-content.drag-over {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+        }
+        
         .story {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
+            cursor: default;
+        }
+        
+        .story[draggable="true"] {
+            cursor: move;
         }
         
         .story:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .story.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
         }
         
         .story h3 {
             color: #2d3748;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             font-weight: 700;
-            font-size: 1.4rem;
-            line-height: 1.4;
+            font-size: 1.2rem;
+            line-height: 1.3;
         }
         
         .story-meta {
@@ -199,9 +270,15 @@
         
         .story p {
             color: #4a5568;
-            font-size: 1.05rem;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
         }
         
         .comments {
@@ -319,6 +396,49 @@
             text-align: center;
         }
         
+        .config-btn {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .config-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
+        }
+        
+        .story-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .story-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .story-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
         /* Animation for story cards */
         @keyframes fadeInUp {
             from {
@@ -434,19 +554,31 @@
             <button type="button" class="btn btn-secondary" onclick="hideStoryForm()">Cancel</button>
         </div>
 
-        <div id="storiesContainer">
-            <h2>Stories</h2>
-            <div id="storiesList"></div>
+        <div id="loginPrompt" class="form" style="max-width: 600px; margin: 4rem auto; text-align: center;">
+            <h2>Welcome to Community Board</h2>
+            <p style="margin: 1.5rem 0; color: #4a5568; font-size: 1.1rem;">
+                Please sign in to view and participate in community discussions.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn" onclick="showLoginForm()">Login</button>
+                <button class="btn btn-secondary" onclick="showSignupForm()">Sign Up</button>
+            </div>
+        </div>
+
+        <div id="storiesContainer" class="hidden">
+            <h2>Community Board</h2>
+            <div id="kanbanBoard" class="kanban-board"></div>
         </div>
     </div>
 
     <script>
         let currentUser = null;
         let stories = [];
+        let boardConfig = null;
+        let draggedStory = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthStatus();
-            loadStories();
             
             document.getElementById('loginBtn').addEventListener('click', showLoginForm);
             document.getElementById('signupBtn').addEventListener('click', showSignupForm);
@@ -463,6 +595,11 @@
             if (token && user) {
                 currentUser = JSON.parse(user);
                 updateUI();
+                loadBoardConfig();
+            } else {
+                // User not logged in, show login prompt
+                updateUI();
+                showLoginPrompt();
             }
         }
 
@@ -486,15 +623,33 @@
                     adminPanelBtn.onclick = () => window.open('/admin.html', '_blank');
                 }
                 
+                // Show stories container
+                document.getElementById('storiesContainer').classList.remove('hidden');
+                document.getElementById('loginPrompt').classList.add('hidden');
+                
                 if (currentUser.role === 'editor' || currentUser.role === 'admin') {
+                    const buttonsDiv = document.createElement('div');
+                    buttonsDiv.style.marginBottom = '1rem';
+                    buttonsDiv.style.display = 'flex';
+                    buttonsDiv.style.gap = '1rem';
+                    
                     const createBtn = document.createElement('button');
-                    createBtn.className = 'btn';
+                    createBtn.className = 'btn create-story-btn';
                     createBtn.textContent = 'Create Story';
                     createBtn.onclick = showStoryForm;
                     
+                    buttonsDiv.appendChild(createBtn);
+                    
+                    if (currentUser.role === 'admin') {
+                        const configBtn = document.createElement('button');
+                        configBtn.className = 'config-btn';
+                        configBtn.textContent = 'Configure Lanes';
+                        configBtn.onclick = showLaneConfig;
+                        buttonsDiv.appendChild(configBtn);
+                    }
+                    
                     if (!document.querySelector('.create-story-btn')) {
-                        createBtn.className += ' create-story-btn';
-                        document.getElementById('storiesContainer').insertBefore(createBtn, document.getElementById('storiesList'));
+                        document.getElementById('storiesContainer').insertBefore(buttonsDiv, document.getElementById('kanbanBoard'));
                     }
                 }
             } else {
@@ -504,19 +659,30 @@
                 signupBtn.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
                 storyForm.classList.add('hidden');
+                
+                // Hide stories container and show login prompt
+                document.getElementById('storiesContainer').classList.add('hidden');
+                document.getElementById('loginPrompt').classList.remove('hidden');
             }
+        }
+        
+        function showLoginPrompt() {
+            document.getElementById('loginPrompt').classList.remove('hidden');
+            document.getElementById('storiesContainer').classList.add('hidden');
         }
 
         function showSignupForm() {
             document.getElementById('authForms').classList.remove('hidden');
             document.getElementById('signupForm').classList.remove('hidden');
             document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('loginPrompt').classList.add('hidden');
         }
 
         function showLoginForm() {
             document.getElementById('authForms').classList.remove('hidden');
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginPrompt').classList.add('hidden');
         }
 
         function hideAuthForms() {
@@ -594,6 +760,8 @@
                     hideAuthForms();
                     document.getElementById('loginForm').reset();
                     showAlert('Login successful!', 'success');
+                    // Reload the board to update drag permissions
+                    loadBoardConfig();
                 } else {
                     showAlert(data.error || 'Login failed', 'error');
                 }
@@ -607,7 +775,48 @@
             localStorage.removeItem('user');
             currentUser = null;
             updateUI();
-            location.reload();
+            loadBoardConfig();
+        }
+
+        async function loadBoardConfig() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = token ? {
+                    'Authorization': `Bearer ${token}`
+                } : {};
+                
+                const response = await fetch('/api/board/config', {
+                    headers
+                });
+                
+                if (response.ok) {
+                    boardConfig = await response.json();
+                    console.log('Board config loaded:', boardConfig);
+                    console.log('Number of lanes:', boardConfig.lanes ? boardConfig.lanes.length : 0);
+                    loadStories();
+                } else if (response.status === 401) {
+                    // User not authenticated, use default config
+                    boardConfig = {
+                        lanes: [
+                            { id: '0', title: 'To Do', order: 0 },
+                            { id: '1', title: 'In Progress', order: 1 },
+                            { id: '2', title: 'Done', order: 2 }
+                        ]
+                    };
+                    loadStories();
+                }
+            } catch (error) {
+                console.error('Error loading board config:', error);
+                // Use default config on error
+                boardConfig = {
+                    lanes: [
+                        { id: '0', title: 'To Do', order: 0 },
+                        { id: '1', title: 'In Progress', order: 1 },
+                        { id: '2', title: 'Done', order: 2 }
+                    ]
+                };
+                loadStories();
+            }
         }
 
         async function loadStories() {
@@ -615,46 +824,84 @@
                 const response = await fetch('/api/stories');
                 if (response.ok) {
                     stories = await response.json();
-                    displayStories();
+                    console.log('Loaded stories:', stories.length);
+                    console.log('Stories with lanes:', stories.filter(s => s.lane).length);
+                    displayKanbanBoard();
                 }
             } catch (error) {
                 console.error('Error loading stories:', error);
             }
         }
 
-        function displayStories() {
-            const storiesList = document.getElementById('storiesList');
-            storiesList.innerHTML = '';
+        function displayKanbanBoard() {
+            const kanbanBoard = document.getElementById('kanbanBoard');
+            kanbanBoard.innerHTML = '';
 
-            stories.forEach(story => {
-                const storyDiv = document.createElement('div');
-                storyDiv.className = 'story';
-                storyDiv.innerHTML = `
-                    <h3>${story.title}</h3>
-                    <div class="story-meta">
-                        By ${story.author.fullname} on ${new Date(story.createdAt).toLocaleDateString()}
-                    </div>
-                    <p>${story.content}</p>
-                    <div class="comments">
-                        <h4>Comments (${story.comments.length})</h4>
-                        ${story.comments.map(comment => `
-                            <div class="comment">
-                                <div class="comment-meta">
-                                    ${comment.author.fullname} - ${new Date(comment.createdAt).toLocaleDateString()}
-                                </div>
-                                <p>${comment.content}</p>
-                            </div>
-                        `).join('')}
-                        ${currentUser ? `
-                            <div class="comment-form">
-                                <textarea placeholder="Add a comment..." id="comment-${story._id}"></textarea>
-                                <button class="btn" onclick="addComment('${story._id}')">Add Comment</button>
-                            </div>
-                        ` : '<p>Please login to comment.</p>'}
-                    </div>
+            const lanes = boardConfig && boardConfig.lanes ? boardConfig.lanes : [
+                { id: '0', title: 'To Do', order: 0 },
+                { id: '1', title: 'In Progress', order: 1 },
+                { id: '2', title: 'Done', order: 2 }
+            ];
+
+            console.log('Displaying lanes:', lanes);
+            lanes.sort((a, b) => a.order - b.order);
+            console.log('Sorted lanes:', lanes);
+
+            lanes.forEach(lane => {
+                const laneDiv = document.createElement('div');
+                laneDiv.className = 'kanban-lane';
+                laneDiv.innerHTML = `
+                    <div class="lane-header">${lane.title}</div>
+                    <div class="lane-content" data-lane-id="${lane.id}"></div>
                 `;
-                storiesList.appendChild(storyDiv);
+                
+                const laneContent = laneDiv.querySelector('.lane-content');
+                
+                laneContent.addEventListener('dragover', handleDragOver);
+                laneContent.addEventListener('drop', handleDrop);
+                laneContent.addEventListener('dragleave', handleDragLeave);
+                
+                const laneStories = stories.filter(story => {
+                    // Handle stories without lane property (legacy stories)
+                    if (!story.lane && lane.id === '0') {
+                        return true;
+                    }
+                    return story.lane === lane.id;
+                }).sort((a, b) => (a.position || 0) - (b.position || 0));
+                
+                laneStories.forEach(story => {
+                    const storyDiv = createStoryCard(story);
+                    laneContent.appendChild(storyDiv);
+                });
+                
+                kanbanBoard.appendChild(laneDiv);
             });
+        }
+
+        function createStoryCard(story) {
+            const storyDiv = document.createElement('div');
+            storyDiv.className = 'story';
+            const canDrag = currentUser && (currentUser.role === 'editor' || currentUser.role === 'admin');
+            storyDiv.draggable = canDrag;
+            storyDiv.dataset.storyId = story._id;
+            storyDiv.innerHTML = `
+                <h3>${story.title}</h3>
+                <div class="story-meta">
+                    By ${story.author.fullname} on ${new Date(story.createdAt).toLocaleDateString()}
+                </div>
+                <p>${story.content}</p>
+                <div class="story-actions">
+                    <button class="story-btn" onclick="viewStory('${story._id}')">View Details</button>
+                    ${story.comments.length > 0 ? `<span style="color: #718096; font-size: 0.85rem;">${story.comments.length} comments</span>` : ''}
+                </div>
+            `;
+            
+            if (canDrag) {
+                storyDiv.addEventListener('dragstart', handleDragStart);
+                storyDiv.addEventListener('dragend', handleDragEnd);
+            }
+            
+            return storyDiv;
         }
 
         async function createStory() {
@@ -678,7 +925,7 @@
 
                 if (response.ok) {
                     hideStoryForm();
-                    loadStories();
+                    loadBoardConfig();
                     showAlert('Story created successfully!', 'success');
                 } else {
                     const data = await response.json();
@@ -689,8 +936,8 @@
             }
         }
 
-        async function addComment(storyId) {
-            const content = document.getElementById(`comment-${storyId}`).value;
+        async function addComment(storyId, isModal = false) {
+            const content = document.getElementById(isModal ? `modal-comment-${storyId}` : `comment-${storyId}`).value;
 
             if (!content.trim()) {
                 showAlert('Please enter a comment', 'error');
@@ -708,7 +955,9 @@
                 });
 
                 if (response.ok) {
-                    document.getElementById(`comment-${storyId}`).value = '';
+                    if (isModal) {
+                        document.body.querySelector('div[style*="position: fixed"]').remove();
+                    }
                     loadStories();
                 } else {
                     const data = await response.json();
@@ -729,6 +978,244 @@
             setTimeout(() => {
                 alertDiv.remove();
             }, 5000);
+        }
+
+        function handleDragStart(e) {
+            draggedStory = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedStory = null;
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            e.target.closest('.lane-content').classList.add('drag-over');
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            e.target.closest('.lane-content').classList.remove('drag-over');
+        }
+
+        async function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            const laneContent = e.target.closest('.lane-content');
+            laneContent.classList.remove('drag-over');
+            
+            if (draggedStory) {
+                const storyId = draggedStory.dataset.storyId;
+                const newLaneId = laneContent.dataset.laneId;
+                
+                const stories = Array.from(laneContent.children);
+                let position = stories.length;
+                
+                const rect = laneContent.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                
+                for (let i = 0; i < stories.length; i++) {
+                    const storyRect = stories[i].getBoundingClientRect();
+                    const storyY = storyRect.top - rect.top + storyRect.height / 2;
+                    if (y < storyY) {
+                        position = i;
+                        break;
+                    }
+                }
+                
+                try {
+                    const response = await fetch(`/api/board/stories/${storyId}/move`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ lane: newLaneId, position })
+                    });
+                    
+                    if (response.ok) {
+                        loadStories();
+                    } else {
+                        const data = await response.json();
+                        showAlert(data.error || 'Failed to move story', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Network error moving story', 'error');
+                }
+            }
+            
+            return false;
+        }
+
+        function viewStory(storyId) {
+            const story = stories.find(s => s._id === storyId);
+            if (!story) return;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 20px;
+                    max-width: 800px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    position: relative;
+                ">
+                    <button onclick="this.closest('div').parentElement.remove()" style="
+                        position: absolute;
+                        top: 1rem;
+                        right: 1rem;
+                        background: #e2e8f0;
+                        border: none;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        cursor: pointer;
+                        font-size: 20px;
+                    ">×</button>
+                    <h2>${story.title}</h2>
+                    <div class="story-meta">
+                        By ${story.author.fullname} on ${new Date(story.createdAt).toLocaleDateString()}
+                    </div>
+                    <p style="margin: 1.5rem 0; white-space: pre-wrap;">${story.content}</p>
+                    <div class="comments">
+                        <h4>Comments (${story.comments.length})</h4>
+                        ${story.comments.map(comment => `
+                            <div class="comment">
+                                <div class="comment-meta">
+                                    ${comment.author.fullname} - ${new Date(comment.createdAt).toLocaleDateString()}
+                                </div>
+                                <p>${comment.content}</p>
+                            </div>
+                        `).join('')}
+                        ${currentUser ? `
+                            <div class="comment-form">
+                                <textarea placeholder="Add a comment..." id="modal-comment-${story._id}"></textarea>
+                                <button class="btn" onclick="addComment('${story._id}', true)">Add Comment</button>
+                            </div>
+                        ` : '<p>Please login to comment.</p>'}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function showLaneConfig() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const lanes = boardConfig.lanes || [
+                { id: '0', title: 'To Do', order: 0 },
+                { id: '1', title: 'In Progress', order: 1 },
+                { id: '2', title: 'Done', order: 2 }
+            ];
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 20px;
+                    max-width: 600px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                ">
+                    <h2>Configure Kanban Lanes</h2>
+                    <form id="laneConfigForm">
+                        <div id="lanesContainer">
+                            ${lanes.map((lane, index) => `
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <label>Lane ${index + 1} Title</label>
+                                    <input type="text" name="lane-title-${index}" value="${lane.title}" required style="margin-bottom: 0.5rem;">
+                                    <input type="hidden" name="lane-id-${index}" value="${lane.id}">
+                                    <input type="hidden" name="lane-order-${index}" value="${index}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button type="submit" class="btn">Save Configuration</button>
+                        <button type="button" class="btn btn-secondary" onclick="this.closest('div').parentElement.remove()">Cancel</button>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('laneConfigForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const newLanes = [];
+                
+                for (let i = 0; i < lanes.length; i++) {
+                    newLanes.push({
+                        id: formData.get(`lane-id-${i}`),
+                        title: formData.get(`lane-title-${i}`),
+                        order: parseInt(formData.get(`lane-order-${i}`))
+                    });
+                }
+                
+                try {
+                    const response = await fetch('/api/board/config', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ lanes: newLanes })
+                    });
+                    
+                    if (response.ok) {
+                        modal.remove();
+                        showAlert('Lane configuration updated successfully!', 'success');
+                        loadBoardConfig();
+                    } else {
+                        const data = await response.json();
+                        showAlert(data.error || 'Failed to update configuration', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Network error updating configuration', 'error');
+                }
+            });
         }
     </script>
 </body>

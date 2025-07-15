@@ -33,6 +33,15 @@ const storySchema = new mongoose.Schema({
     required: true
   },
   comments: [commentSchema],
+  lane: {
+    type: String,
+    default: '0',
+    required: true
+  },
+  position: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

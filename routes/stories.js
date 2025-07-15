@@ -49,7 +49,9 @@ router.post('/', authenticateToken, requireRole(['editor', 'admin']), [
     const story = new Story({
       title,
       content,
-      author: req.user._id
+      author: req.user._id,
+      lane: '0',
+      position: await Story.countDocuments({ lane: '0' })
     });
 
     await story.save();
